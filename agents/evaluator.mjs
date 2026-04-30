@@ -8,7 +8,6 @@
  * Model chain:
  *   Primary:   Groq Llama 3.3 70B (free, fast)
  *   Fallback:  NVIDIA NIM (free credits)
- *   Tertiary:  Gemini 2.0 Flash
  */
 
 import 'dotenv/config';
@@ -23,7 +22,6 @@ import { sendMatchCard, sendAlert } from '../bridge/lib/notify.mjs';
 const PORT = parseInt(process.env.EVALUATOR_PORT || '9002', 10);
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // Load CV + profile for context
 const CV_PATH = new URL('../cv.md', import.meta.url).pathname;
@@ -85,29 +83,10 @@ async function callNvidia(systemPrompt, userPrompt) {
   return data.choices[0].message.content;
 }
 
-async function callGemini(systemPrompt, userPrompt) {
-  if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not set');
-  const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }],
-        generationConfig: { temperature: 0.3, maxOutputTokens: 2048 },
-      }),
-    }
-  );
-  if (!resp.ok) throw new Error(`Gemini: ${resp.status} ${await resp.text()}`);
-  const data = await resp.json();
-  return data.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-}
-
 async function callLLM(systemPrompt, userPrompt) {
   const models = [
     { name: 'groq', fn: () => callGroq(systemPrompt, userPrompt) },
     { name: 'nvidia', fn: () => callNvidia(systemPrompt, userPrompt) },
-    { name: 'gemini', fn: () => callGemini(systemPrompt, userPrompt) },
   ];
   for (const model of models) {
     try {

@@ -5,53 +5,54 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..', '..');
 
-// Load .env from parent repo if bridge .env doesn't have the key
-let apiKey = process.env.GEMINI_API_KEY;
-if (!apiKey) {
-  try {
-    const parentEnv = join(ROOT, '.env');
-    if (existsSync(parentEnv)) {
-      const lines = readFileSync(parentEnv, 'utf-8').split('\n');
-      for (const line of lines) {
-        const m = line.match(/^GEMINI_API_KEY=(.+)/);
-        if (m) { apiKey = m[1].trim(); break; }
-      }
-    }
-  } catch { /* ignore */ }
-}
-
-let genAI = null;
-
-async function getClient() {
-  if (genAI) return genAI;
-  if (!apiKey) throw new Error('GEMINI_API_KEY not configured');
-  const { GoogleGenerativeAI } = await import('@google/generative-ai');
-  genAI = new GoogleGenerativeAI(apiKey);
-  return genAI;
-}
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY;
 
 /**
- * Call Gemini with a system prompt and user message.
- * Returns the text response.
+ * Call LLM with a system prompt and user message (Groq primary, NVIDIA fallback).
+ * Drop-in replacement for the old geminiChat — same signature.
  */
 export async function geminiChat(systemPrompt, userMessage, opts = {}) {
-  const client = await getClient();
-  const modelName = opts.model || process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+  const temperature = opts.temperature ?? 0.4;
+  const maxTokens = opts.maxTokens ?? 8192;
 
-  const model = client.getGenerativeModel({
-    model: modelName,
-    generationConfig: {
-      temperature: opts.temperature ?? 0.4,
-      maxOutputTokens: opts.maxTokens ?? 8192,
-    },
-  });
+  // Try Groq first
+  if (GROQ_API_KEY) {
+    try {
+      const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'llama-3.3-70b-versatile',
+          messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }],
+          temperature, max_tokens: maxTokens,
+        }),
+      });
+      if (!resp.ok) throw new Error(`Groq: ${resp.status}`);
+      const data = await resp.json();
+      return data.choices[0].message.content;
+    } catch (err) {
+      console.warn('[llm] Groq failed:', err.message);
+    }
+  }
 
-  const result = await model.generateContent([
-    { text: systemPrompt },
-    { text: userMessage },
-  ]);
+  // Fallback to NVIDIA
+  if (NVIDIA_API_KEY) {
+    const resp = await fetch('https://integrate.api.nvidia.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${NVIDIA_API_KEY}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'meta/llama-3.3-70b-instruct',
+        messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userMessage }],
+        temperature, max_tokens: maxTokens,
+      }),
+    });
+    if (!resp.ok) throw new Error(`NVIDIA: ${resp.status} ${await resp.text()}`);
+    const data = await resp.json();
+    return data.choices[0].message.content;
+  }
 
-  return result.response.text();
+  throw new Error('No LLM provider available (need GROQ_API_KEY or NVIDIA_API_KEY)');
 }
 
 /**

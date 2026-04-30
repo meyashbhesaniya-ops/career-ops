@@ -35,7 +35,6 @@ const PORT = parseInt(process.env.TAILOR_PORT || '9001', 10);
 const TAILOR_TOKEN = process.env.TAILOR_TOKEN || '';
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY;
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
@@ -81,20 +80,11 @@ async function callLLM(systemPrompt, userPrompt) {
       if (!r.ok) throw new Error(`NVIDIA ${r.status}`);
       return (await r.json()).choices[0].message.content;
     },
-    async () => {
-      if (!GEMINI_API_KEY) throw new Error('no gemini key');
-      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] }], generationConfig: { temperature: 0.4, maxOutputTokens: 3000 } }),
-      });
-      if (!r.ok) throw new Error(`Gemini ${r.status}`);
-      return (await r.json()).candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-    },
   ];
   for (const p of providers) {
     try { return await p(); } catch (e) { console.warn('[tailor]', e.message); }
   }
-  throw new Error('All LLM providers failed');
+  throw new Error('All LLM providers failed (Groq + NVIDIA)');
 }
 
 // ── CV tailoring ──────────────────────────────────────────────────────────────

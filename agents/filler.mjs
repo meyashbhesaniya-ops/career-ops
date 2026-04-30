@@ -12,7 +12,7 @@
  * Port mapping for 3-tier strategy:
  *   Tier 1: Static selectors from extension/content/portal-selectors.js (ported to Node)
  *   Tier 2: DB selector cache (domain + form hash)
- *   Tier 3: Gemini 2.0 Flash multimodal vision on screenshot
+ *   Tier 3: LLM text inference (Groq/NVIDIA) from field labels + profile
  */
 
 import 'dotenv/config';
@@ -38,7 +38,8 @@ const APP_ID = process.env.APP_ID;
 const SUBMIT_MODE = process.env.SUBMIT_MODE === 'true';
 const ORCHESTRATOR_URL = process.env.ORCHESTRATOR_URL;
 const ORCHESTRATOR_TOKEN = process.env.ORCHESTRATOR_TOKEN || '';
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY;
 
 const vault = new Vault();
 
@@ -286,10 +287,9 @@ async function run() {
       if (isRequired) requiredUnfilled.push({ input, label });
     }
 
-    if (requiredUnfilled.length > 0 && GEMINI_API_KEY) {
-      console.log(`[filler] Tier 3 vision fallback for ${requiredUnfilled.length} required fields`);
-      const screenshot = await page.screenshot({ encoding: 'base64' });
-      const suggestions = await visionFillSuggestions(screenshot, requiredUnfilled.map(f => f.label), profile, job);
+    if (requiredUnfilled.length > 0 && (GROQ_API_KEY || NVIDIA_API_KEY)) {
+      console.log(`[filler] Tier 3 LLM fallback for ${requiredUnfilled.length} required fields`);
+      const suggestions = await llmFillSuggestions(requiredUnfilled.map(f => f.label), profile, job);
       for (const { field, value } of suggestions) {
         const match = requiredUnfilled.find(f => f.label?.toLowerCase() === field?.toLowerCase());
         if (match && value) {
@@ -433,9 +433,9 @@ async function fillInput(page, input, type, value) {
   await input.dispatchEvent('input');
 }
 
-async function visionFillSuggestions(screenshotBase64, fieldLabels, profile, job) {
+async function llmFillSuggestions(fieldLabels, profile, job) {
   const prompt = `You are a job application form filling assistant.
-Given a screenshot of a job application form and a list of field labels, determine what value from the candidate profile should go in each field.
+Given a list of field labels from a form, determine what value from the candidate profile should go in each field.
 
 Candidate profile:
 ${JSON.stringify(profile, null, 2)}
@@ -447,32 +447,29 @@ Field labels that need values: ${JSON.stringify(fieldLabels)}
 Respond with a JSON array: [{ "field": "<label>", "value": "<answer>" }]
 Only include fields you are confident about. If unsure, omit.`;
 
-  const resp = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{
-          role: 'user',
-          parts: [
-            { text: prompt },
-            { inline_data: { mime_type: 'image/png', data: screenshotBase64 } },
-          ],
-        }],
-        generationConfig: { temperature: 0.1, maxOutputTokens: 1000 },
-      }),
-    }
-  );
-  if (!resp.ok) return [];
-  const data = await resp.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? '[]';
-  try {
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    return JSON.parse(jsonMatch?.[0] ?? '[]');
-  } catch {
-    return [];
+  const providers = [
+    { key: GROQ_API_KEY, url: 'https://api.groq.com/openai/v1/chat/completions', model: 'llama-3.3-70b-versatile' },
+    { key: NVIDIA_API_KEY, url: 'https://integrate.api.nvidia.com/v1/chat/completions', model: 'meta/llama-3.3-70b-instruct' },
+  ];
+
+  for (const { key, url, model } of providers) {
+    if (!key) continue;
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model, messages: [{ role: 'user', content: prompt }],
+          temperature: 0.1, max_tokens: 1000,
+        }),
+      });
+      if (!resp.ok) continue;
+      const text = (await resp.json()).choices[0].message.content;
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      return JSON.parse(jsonMatch?.[0] ?? '[]');
+    } catch { continue; }
   }
+  return [];
 }
 
 async function postToOrchestrator(path, body) {
