@@ -19,9 +19,21 @@ export const db = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY, {
 // ── Jobs ────────────────────────────────────────────────────────────────────
 
 export async function upsertJob(job) {
+  // If job has an id, this is an update to existing record
+  if (job.id) {
+    const { data, error } = await db
+      .from('jobs')
+      .update(job)
+      .eq('id', job.id)
+      .select()
+      .single();
+    if (error) throw new Error(`[db] upsertJob (update): ${error.message}`);
+    return data;
+  }
+  // New job — insert only if URL doesn't exist (don't overwrite status)
   const { data, error } = await db
     .from('jobs')
-    .upsert(job, { onConflict: 'url', ignoreDuplicates: false })
+    .upsert(job, { onConflict: 'url', ignoreDuplicates: true })
     .select()
     .single();
   if (error) throw new Error(`[db] upsertJob: ${error.message}`);

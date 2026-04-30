@@ -95,7 +95,7 @@ async function callLLM(systemPrompt, userPrompt) {
 
 // ── Rate limiting ─────────────────────────────────────────────────────────────
 
-const EVAL_DELAY_MS = 3000; // 3s between evaluations to avoid 429
+const EVAL_DELAY_MS = 6000; // 6s between evaluations to respect Groq 12K TPM
 let evalQueue = [];
 let processing = false;
 
