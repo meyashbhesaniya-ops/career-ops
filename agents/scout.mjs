@@ -94,6 +94,29 @@ function matchesFilter(title, filters) {
   return hasPositive && !hasNegative;
 }
 
+// ── Germany location filter ───────────────────────────────────────────────────
+
+const GERMAN_CITIES = [
+  'berlin', 'munich', 'münchen', 'hamburg', 'frankfurt', 'cologne', 'köln',
+  'stuttgart', 'düsseldorf', 'dusseldorf', 'leipzig', 'dresden', 'hannover',
+  'hanover', 'nuremberg', 'nürnberg', 'bremen', 'essen', 'dortmund', 'bonn',
+  'karlsruhe', 'mannheim', 'wiesbaden', 'aachen', 'mainz', 'augsburg',
+  'freiburg', 'heidelberg', 'darmstadt', 'erlangen', 'magdeburg', 'kiel',
+  'lübeck', 'lubeck', 'münster', 'munster', 'potsdam', 'regensburg', 'ulm',
+  'wolfsburg', 'ingolstadt', 'jena', 'göttingen', 'gottingen', 'tübingen',
+  'tubingen', 'walldorf', 'saxony', 'bavaria', 'bayern', 'hesse', 'hessen',
+];
+
+function matchesGermany(location) {
+  if (!location) return false; // strict: require explicit location
+  const loc = location.toLowerCase();
+  if (loc.includes('germany') || loc.includes('deutschland') || loc.includes(' de,') || loc.endsWith(' de')) return true;
+  if (loc.includes('dach')) return true;
+  // Remote-EMEA/EU acceptable only if Germany also mentioned
+  if (GERMAN_CITIES.some(c => new RegExp(`\\b${c}\\b`, 'i').test(loc))) return true;
+  return false;
+}
+
 // ── Dedup via TSV history (local fallback, DB is primary) ─────────────────────
 
 const seenUrls = new Set();
@@ -146,7 +169,7 @@ async function runScan() {
 
         const json = await fetchWithTimeout(api.url);
         const rawJobs = parseJobs(api.type, json, company);
-        const filtered = rawJobs.filter(j => j.url && matchesFilter(j.title, filters));
+        const filtered = rawJobs.filter(j => j.url && matchesFilter(j.title, filters) && matchesGermany(j.location));
 
         for (const rawJob of filtered) {
           if (seenUrls.has(rawJob.url)) continue;
