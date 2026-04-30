@@ -51,8 +51,11 @@ bun.lock
 career-dashboard
 package-lock.json
 
-# Personal auto-apply extension + bridge (never publish)
+# Personal auto-apply extension (never publish)
 extension/
-bridge/
 local/
 PERSONAL.md
+
+# Bridge — ignore node_modules but include source
+bridge/node_modules/
+bridge/.env
