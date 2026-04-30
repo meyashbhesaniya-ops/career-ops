@@ -15,7 +15,14 @@
     "rollback": "node update-system.mjs rollback",
     "liveness": "node check-liveness.mjs",
     "scan": "node scan.mjs",
-    "gemini:eval": "node gemini-eval.mjs"
+    "gemini:eval": "node gemini-eval.mjs",
+    "scout": "node agents/scout.mjs",
+    "evaluator": "node agents/evaluator.mjs",
+    "tailor": "node agents/tailor.mjs",
+    "orchestrator": "node agents/orchestrator.mjs",
+    "bot": "node agents/telegram-bot.mjs",
+    "filler": "node agents/filler.mjs",
+    "oci-watch": "node agents/oci-capacity-watch.mjs"
   },
   "keywords": [
     "ai",
@@ -31,10 +38,16 @@
     "url": "https://github.com/santifer/career-ops"
   },
   "license": "MIT",
+  "type": "module",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.43.5",
     "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "grammy": "^1.26.0",
     "js-yaml": "^4.1.1",
+    "node-cron": "^3.0.3",
+    "node-fetch": "^3.3.2",
     "playwright": "^1.58.1"
   }
 }

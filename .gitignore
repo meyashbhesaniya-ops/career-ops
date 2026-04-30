@@ -15,6 +15,8 @@ batch/tracker-additions/**/*.tsv
 !batch/tracker-additions/.gitkeep
 jds/*
 !jds/.gitkeep
+cv.md
+cv-backup.md
 
 # Writing samples (user's personal files — never committed)
 writing-samples/*
@@ -29,6 +31,9 @@ modes/_profile.md
 
 # Secrets (never commit — use .env.example as template)
 .env
+
+# PM2 logs (generated on VMs)
+logs/
 
 # Generated
 .resolved-prompt-*
@@ -45,3 +50,9 @@ bun.lock
 .claude/memory/
 career-dashboard
 package-lock.json
+
+# Personal auto-apply extension + bridge (never publish)
+extension/
+bridge/
+local/
+PERSONAL.md

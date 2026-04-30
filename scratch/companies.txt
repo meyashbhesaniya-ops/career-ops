@@ -1,0 +1,654 @@
+Adidas
+Agile Robots
+Airbus Defence and Space
+Alasco
+ARRI
+Audi
+AutoScout24
+Brainlab
+Brose
+BSH Home Appliances
+Cherry
+Conrad Electronic
+Crashtest Security
+DATEV
+e-bot7
+EGYM
+eMundo
+EOS
+Exasol
+FAZUA
+FERNRIDE
+Finn
+Flix
+Franka Robotics
+GfK
+Hubert Burda Media
+HUK-COBURG
+IGEL Technology
+Interhyp
+inveox
+iteratec
+Joyn
+Kinexon
+Knorr-Bremse
+KraussMaffei
+Krones
+KUKA
+Leoni
+Magazino
+MaibornWolff
+MAN Truck & Bus
+Marvel Fusion
+msg systems
+MTU Aero Engines
+Munich Re
+Mynaric
+NavVis
+Nemetschek
+NTT DATA DACH
+Nürnberger Versicherung
+OSRAM
+Paessler
+PAYBACK
+ProGlove
+Puma
+QAware
+Quantum-Systems
+Rational AG
+Reply
+Robominds
+Rohde & Schwarz
+Ryte
+Scalable Capital
+Schaeffler
+Siemens Healthineers
+SUSE
+tado°
+TeamBank
+TNG Technology Consulting
+trbo
+Usercentrics
+Wacker Chemie
+Webasto
+Helsing
+Celonis
+Aleph Alpha
+BMW Group
+Personio
+Lilium
+Free Now
+Isar Aerospace
+Holidu
+appliedAI
+Konux
+Twaice
+Blickfeld
+Luminovo
+Check24
+Allianz Direct
+Westwing
+ProSiebenSat.1
+IDnow
+Siemens AI Lab
+Infineon
+Fineway
+Deep North
+Trusteq
+Fonds Finanz
+Alibaba Group (Munich Research)
+Amazon / AWS (Munich)
+Apple (Munich Silicon Design Center)
+Building Radar
+Capmo
+Casavi
+censhare
+Cisco (Munich)
+Cloudflight
+Cloumo Consulting
+Cluno
+Cobrainer
+CupoNation
+DriveLock
+Erium
+Fadata
+Fidor Solutions
+Fortiss
+Fujitsu (Munich)
+German Bionic
+Gini
+Global Savings Group
+Google (Munich Engineering Hub)
+Huawei (Munich Research Center)
+HumanIT
+IBM (Munich)
+ICterra
+iMes Solutions
+inovex
+Innowise
+Intel (Munich)
+InterNetX
+jambit
+Kaia Health
+ManekTech Solutions
+method park
+Microsoft (Munich)
+Neos
+Neurobots
+Nordcloud
+Novum-RGI
+OptioPay
+OroraTech
+Parcellab
+Persistent Systems
+Qualysoft
+Remberg
+Retarus
+Riskmethods
+Scompler
+SimScale
+Sleak AI
+smicolon
+Softeq
+SOPRA EDV-Informationssysteme
+SpaceNet AG
+STR8MINDS
+Stylight
+Tacto
+Tanso
+TRIARE
+TrustYou
+Varexa Digital Agency
+Virtual Identity
+Vollcom Digital
+Wealthpilot
+Xempus
+Yaveon
+Accenture (Munich)
+Adesso SE
+Adobe (Munich)
+Akka Technologies
+Allianz Technology
+Alteryx (Munich)
+AMD (Munich)
+Amdocs
+Arista Networks
+Autodesk (Munich)
+Automation Anywhere
+Bayerischer Rundfunk (BR IT/Digital)
+Bentley Systems
+Bertrandt
+Blue Prism
+Brainloop
+Cancom
+Capgemini
+Cariad (VW Group)
+ChargeX
+Check Point
+Ciena
+CipSoft
+Computacenter
+Criteo
+CrowdStrike
+Dassault Systèmes
+Databricks (Munich)
+DataGuard
+Deloitte (Tech Consulting Munich)
+E.ON (Digital/IT Munich)
+ESG Elektroniksystem- und Logistik-GmbH
+EY (Tech Consulting Munich)
+F5 Networks
+Fortinet
+Generali (Tech Hub Munich)
+Giesecke+Devrient
+GoTo
+HolidayCheck (Munich Engineering)
+Juniper Networks
+KATEK
+Kaufland e-commerce (Munich)
+Keysight Technologies
+KPMG (Tech Consulting Munich)
+KPS AG
+MathWorks
+Meta (Munich Hub)
+MHP - A Porsche Company
+Mindcurv
+Mytheresa (Tech/Data Team)
+National Instruments
+NetApp
+Nvidia (Munich)
+NXP Semiconductors
+OpenText
+Oracle (Munich)
+Palantir (Munich)
+Palo Alto Networks
+Pegasystems
+Pinterest (Munich)
+PTC
+Pure Storage
+PwC (Tech Consulting Munich)
+Qlik
+Qualcomm (Munich)
+Roku
+Salesforce (Munich)
+SAP (Munich Labs)
+SAS Institute
+ServiceNow
+Siemens Digital Industries Software
+Snowflake (Munich)
+Sony (Munich R&D)
+Sophos
+Splunk
+Spotify (Munich)
+Stadtwerke München (SWM IT)
+STMicroelectronics
+Tableau
+Telefónica Germany / O2
+Teradata
+Texas Instruments
+TikTok / ByteDance (Munich)
+Travian Games
+Trend Micro
+T-Systems
+TÜV SÜD (Digital/Cybersecurity)
+UiPath (Munich)
+Valantic
+Veeam
+VMware (Munich)
+Wacker Neuson
+Wavestone
+Wirelane
+Workday (Munich)
+Zscaler
+adesso
+ALDI Nord
+ALDI SÜD IT
+Arvato Systems
+Atruvia
+AXA Germany
+Barmenia
+Bayer
+Bechtle
+Bertelsmann
+C&A IT
+Capgemini
+CGI
+Cognigy
+Computacenter
+Congstar
+Covestro
+Dassault Systèmes
+DeepL
+Deloitte
+Deutsche Post DHL Group
+Deutsche Telekom
+DEVK
+Diebold Nixdorf
+Doctolib
+Douglas IT
+E.ON
+ERGO Group
+ESL Gaming
+Eurowings Digital
+Evonik
+Flaschenpost
+Ford Europe
+Fraunhofer IAIS
+Fressnapf
+FZ Jülich (Forschungszentrum Jülich)
+G Data CyberDefense
+GEA Group
+Gothaer
+gridX
+Handelsblatt Media Group
+Hella
+Henkel
+HRS
+Igus
+Klöckner & Co
+KPMG
+Lanxess
+LeanIX
+L'Oréal DACH
+Materna
+Melitta
+METRO Digital
+Miele
+OBI Group Holding
+Oetker Digital
+Phoenix Contact
+Picnic
+Provinzial
+PwC Deutschland
+q.beyond
+REWE Digital
+RheinEnergie
+Rheinmetall
+RTL Deutschland (RTL Data)
+RWE
+Schenker
+Signal Iduna
+Sipgate
+SMS group
+StepStone
+SumUp
+TARGOBANK
+Tengelmann
+Thyssenkrupp
+TK Elevator
+Trivago
+Trusted Shops
+TÜV Rheinland
+Uniper
+Vaillant
+Vodafone Germany
+Vorwerk
+WAGO
+WDR
+Weidmüller
+WILO
+Zurich Gruppe Deutschland
+1NCE
+Amprion
+ARAG
+ArangoDB
+Axians
+Babymarkt.de
+Beckhoff Automation
+BP Europa SE
+Canon Germany
+Ceconomy
+Cimt AG
+Cleverbridge
+Cognizant
+Conet
+Coroplast
+Deichmann
+Denso
+DKV Mobility
+DLR (German Aerospace Center)
+DMG Mori
+Dörken
+Egoditor
+Eplan
+Epson Europe
+Ernsting's family
+Eviden
+Finanz Informatik
+Flender
+GFT Technologies
+Gira
+Harting
+Homelike
+Host Europe
+HSBC Deutschland
+ifm electronic
+Infosys
+Intersnack
+Johnson & Johnson
+Just Spices
+Kik
+Knipex
+Kostal
+KROHNE
+Kyocera Document Solutions
+LVM Versicherung
+Max Planck Institute for Security and Privacy
+Medtronic
+Miltenyi Biotec
+Nagarro
+Next Kraftwerke
+NRW.BANK
+Open Grid Europe
+OPPO
+Opta Data
+Peek & Cloppenburg
+Pfeifer & Langen
+Placetel
+Qiagen
+Qvest
+Renesas Electronics
+Rheinische Post Mediengruppe
+Roland Rechtsschutz
+ROSE Bikes
+Schmitz Cargobull
+Secunet
+Sedo
+Sopra Steria
+Sparkassen-Finanzportal
+SVA System Vertrieb Alexander
+Tata Consultancy Services (TCS)
+Tech Mahindra
+Thoughtworks
+Tonies
+Toshiba Europe
+Toyota Gazoo Racing Europe
+Trilux
+Turck
+Viega
+VIVO
+Wipro
+Xiaomi
+Zalando (Dortmund Tech Hub)
+ZTE
+AIXTRON
+Altana
+ASUS Germany
+Auxmoney
+BWI
+Brenntag
+Brax
+CLAAS
+Currenta
+Der Grüne Punkt
+Deutsche Welle
+Dornbracht
+dSPACE
+DSA (Daten- und Systemtechnik GmbH)
+Electronic Arts (EA) Germany
+Ericsson (Düsseldorf Hub)
+Eyeo
+FEV Group
+Flowfact
+Fraunhofer ILT
+Fraunhofer IML
+Fraunhofer UMSICHT
+Gelsenwasser
+Gerry Weber
+Grandcentrix
+Grohe
+GWS (Gesellschaft für Warenwirtschafts-Systeme)
+Hochtief
+Huawei Technologies (Düsseldorf)
+IBM (Düsseldorf/Cologne Hubs)
+Ineos (Köln)
+Inform GmbH
+InVision
+Iqony
+Lambertz
+Lindt & Sprüngli (Aachen)
+Medion
+Microsoft (Cologne Hub)
+ModuleWorks
+NetCologne
+Nokia Networks (Düsseldorf)
+NTT DATA Business Solutions
+Raynet
+Remondis
+SAP (Ratingen Hub)
+Schmersal
+Shell (Rheinland)
+SoSafe
+Super RTL
+Takko Fashion
+Thalia
+T-Systems
+Utimaco
+Wortmann AG
+Aedifion
+Aerosoft
+Alunorf
+Aral
+Autobahn GmbH des Bundes (IT Hubs)
+Banijay Germany
+BCG Platinion (Düsseldorf/Cologne)
+Benteler
+Bofrost
+Brainpool TV
+Brunata Metrona (Hürth)
+Burg-Wächter
+Compleo Charging Solutions
+Cylib
+Dalli-Werke
+DER Touristik
+Deutschlandradio
+DuMont
+Envelio
+FedEx Germany (Cologne Hub)
+Fiege Logistics
+Funke Mediengruppe
+Galeria
+Gerresheimer
+Goldbeck
+Gridhound
+Gridscale
+Grünenthal
+Hettich
+HKM (Hüttenwerke Krupp Mannesmann)
+Instana
+Ista
+IT.NRW
+Kienbaum
+Koelnmesse
+Kötter Services
+LEG Immobilien
+Mäurer & Wirtz
+McKinsey Digital (Düsseldorf)
+Messe Düsseldorf
+Messe Essen
+Mubea
+Next.e.GO Mobile
+Oliver Wyman (Düsseldorf)
+Outokumpu (Krefeld Hub)
+Piranha Bytes
+PlusServer
+QVC Germany
+Rhenus Logistics
+Roland Berger (Düsseldorf)
+Sastrify
+Schauinsland-Reisen
+Schüco
+Schwalbe
+Simon-Kucher & Partners
+Speira
+Staffbase (Cologne Hub)
+Strabag (Cologne Tech Hub)
+SThree
+Ströer
+Teekanne
+Thyssengas
+Tönnies
+Trimet Aluminium
+TÜV NORD GROUP
+Ubisoft Blue Byte
+UPS Germany (Neuss)
+VdS Schadenverhütung
+Vivawest
+Voltfang
+Vonovia
+Vossloh
+Vytal
+Westfalenhallen Dortmund
+Westfleisch
+Wolters Kluwer (Cologne Hub)
+Ada Health
+AI21 Labs (Berlin Hub)
+Amazon (Berlin Machine Learning Hub)
+Babbel
+Blinkist
+Choco
+Clue
+CoachHub
+Contentful
+Deepset (Creators of Haystack)
+Delivery Hero
+Forto
+GetYourGuide
+Grover
+HelloFresh
+Jina AI
+Klarna (Berlin Engineering)
+Mambu
+Merantix
+Moonfare
+N26
+Omio
+Pitch
+Qdrant
+Rasa
+ResearchGate
+SAP (Berlin Innovation Center)
+Sennder
+Shopify (Berlin Engineering)
+SoundCloud
+Stripe (Berlin Hub)
+Taxfix
+Tier Mobility
+Trade Republic
+Vinted (Berlin Engineering)
+Wayfair (Berlin Engineering)
+Wefox
+Zalando
+Zendesk (Berlin Hub)
+About You
+Airbus (Hamburg Tech Hub)
+Bauer Media Group (Tech/Data)
+Beiersdorf (Tech/Data)
+Bigpoint
+Der Spiegel (Tech/Data)
+Edeka Digital
+Facelift
+Goodgame Studios
+InnoGames
+Jimdo
+Kühne+Nagel (Tech Hub)
+Mindpeak
+MOIA
+Otto Group (OTTO IT)
+SinnerSchrader
+Statista
+Symphony (Hamburg Hub)
+Wunder Mobility
+XING (New Work SE)
+Bosch (Bosch Center for Artificial Intelligence - BCAI)
+Cariad (Stuttgart Hub)
+Chrono24
+EnBW
+Festo
+IONOS
+Mercedes-Benz (Tech Innovation)
+Porsche Digital
+SAP (Walldorf HQ)
+Schwarz IT
+TeamViewer
+TRUMPF
+Vector Informatik
+Volocopter
+Clark
+Commerzbank (Neugelb Tech Hub)
+Crytek
+Deutsche Bank (Technology Centre)
+Deutsche Börse Group
+DZ Bank (IT)
+Emma – The Sleep Company
+KfW (IT Hub)
+Lufthansa Systems
+Merck Group (Darmstadt Data/AI)
+Nintendo Europe (Tech)
+Software AG
+GlobalFoundries (Dresden)
+Infineon (Dresden Hub)
+Spread Group
+Staffbase
+Wandelbots
+mission Mittelstand GMBH

@@ -1,0 +1,63 @@
+name: "Filler - Headless Playwright Apply"
+
+on:
+  repository_dispatch:
+    types: [filler-trigger]
+
+concurrency:
+  group: filler-${{ github.event.client_payload.jobId }}
+  cancel-in-progress: false
+
+jobs:
+  fill:
+    name: Fill & Submit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      JOB_ID: ${{ github.event.client_payload.jobId }}
+      APP_ID: ${{ github.event.client_payload.appId }}
+      SUBMIT_MODE: ${{ github.event.client_payload.submit || 'false' }}
+      CV_URL: ${{ github.event.client_payload.cvUrl || '' }}
+      COVER_TEXT: ${{ github.event.client_payload.coverText || '' }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      VAULT_KEY: ${{ secrets.VAULT_KEY }}
+      ORCHESTRATOR_URL: ${{ secrets.ORCHESTRATOR_URL }}
+      ORCHESTRATOR_TOKEN: ${{ secrets.ORCHESTRATOR_TOKEN }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      NVIDIA_API_KEY: ${{ secrets.NVIDIA_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      GH_WEBHOOK_SECRET: ${{ secrets.GH_WEBHOOK_SECRET }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd bridge && npm ci && cd ..
+          npx playwright install chromium --with-deps
+
+      - name: Run filler agent
+        id: filler
+        run: node agents/filler.mjs
+        env:
+          JOB_ID: ${{ env.JOB_ID }}
+          APP_ID: ${{ env.APP_ID }}
+          SUBMIT_MODE: ${{ env.SUBMIT_MODE }}
+
+      - name: Upload screenshots on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: filler-screenshots-${{ env.JOB_ID }}
+          path: output/screenshots/
+          retention-days: 3

@@ -1,0 +1,48 @@
+name: "Nightly Backup - Vault and Database"
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  backup:
+    name: Backup vault and DB
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pg_dump (postgres-client)
+        run: sudo apt-get install -y postgresql-client
+
+      - name: Dump Supabase DB
+        run: |
+          mkdir -p backups
+          BACKUP_FILE="backups/db-$(date +%Y%m%d-%H%M%S).sql.gz"
+          pg_dump "$SUPABASE_DB_URL" | gzip > "$BACKUP_FILE"
+          echo "BACKUP_FILE=$BACKUP_FILE" >> $GITHUB_ENV
+          echo "Backup created: $BACKUP_FILE ($(du -h $BACKUP_FILE | cut -f1))"
+
+      - name: Upload DB backup as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_number }}
+          path: backups/
+          retention-days: 30
+
+      - name: Run health check
+        run: node test-all.mjs --no-exit 2>&1 | tail -20
+        continue-on-error: true
