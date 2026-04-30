@@ -58,7 +58,9 @@ app.get('/healthz', (_req, res) => res.json({ ok: true }));
 
 // ── LLM helper (same fallback chain as evaluator) ─────────────────────────────
 
-async function callLLM(systemPrompt, userPrompt) {
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+async function callLLMOnce(systemPrompt, userPrompt) {
   const providers = [
     async () => {
       if (!GROQ_API_KEY) throw new Error('no groq key');
@@ -67,7 +69,7 @@ async function callLLM(systemPrompt, userPrompt) {
         headers: { Authorization: `Bearer ${GROQ_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: 'llama-3.3-70b-versatile', messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.4, max_tokens: 3000 }),
       });
-      if (!r.ok) throw new Error(`Groq ${r.status}`);
+      if (!r.ok) { const err = new Error(`Groq ${r.status}`); err.status = r.status; throw err; }
       return (await r.json()).choices[0].message.content;
     },
     async () => {
@@ -77,12 +79,31 @@ async function callLLM(systemPrompt, userPrompt) {
         headers: { Authorization: `Bearer ${NVIDIA_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify({ model: 'meta/llama-3.3-70b-instruct', messages: [{ role: 'system', content: systemPrompt }, { role: 'user', content: userPrompt }], temperature: 0.4, max_tokens: 3000 }),
       });
-      if (!r.ok) throw new Error(`NVIDIA ${r.status}`);
+      if (!r.ok) { const err = new Error(`NVIDIA ${r.status}`); err.status = r.status; throw err; }
       return (await r.json()).choices[0].message.content;
     },
   ];
+  let lastErr;
   for (const p of providers) {
-    try { return await p(); } catch (e) { console.warn('[tailor]', e.message); }
+    try { return await p(); } catch (e) { lastErr = e; console.warn('[tailor]', e.message); }
+  }
+  throw lastErr || new Error('All LLM providers failed (Groq + NVIDIA)');
+}
+
+// Retry with exponential backoff on 429
+async function callLLM(systemPrompt, userPrompt) {
+  const maxAttempts = 5;
+  let delay = 8000;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await callLLMOnce(systemPrompt, userPrompt);
+    } catch (e) {
+      const is429 = String(e.message).includes('429');
+      if (!is429 || attempt === maxAttempts) throw e;
+      console.warn(`[tailor] 429 — backing off ${delay}ms (attempt ${attempt}/${maxAttempts})`);
+      await sleep(delay);
+      delay *= 2;
+    }
   }
   throw new Error('All LLM providers failed (Groq + NVIDIA)');
 }
@@ -217,65 +238,85 @@ async function uploadToStorage(filePath, storageKey) {
 
 // ── Main route ────────────────────────────────────────────────────────────────
 
+// Serial queue: process one job at a time to respect Groq TPM (12K/min on free tier)
+const tailorQueue = [];
+let tailorBusy = false;
+
+async function processTailorJob({ jobId, questions }) {
+  try {
+    const job = await getJob(jobId);
+    if (!job) throw new Error('Job not found');
+
+    console.log(`[tailor] Starting tailoring for ${job.company} — ${job.title}`);
+    await updateJobStatus(jobId, 'TAILORING');
+
+    // 1. Tailor CV
+    const tailoredCV = await tailorCV(job);
+
+    // 2. Generate PDF
+    let cvUrl = null;
+    try {
+      const pdfPath = await generatePDF(tailoredCV, jobId);
+      cvUrl = await uploadToStorage(pdfPath, `${jobId}/cv.pdf`);
+    } catch (err) {
+      console.error('[tailor] PDF generation failed:', err.message);
+      await sendAlert(`⚠️ PDF generation failed for ${job.company}: ${err.message}. Will use markdown fallback.`);
+    }
+
+    // 3. Generate cover letter
+    const coverText = await generateCoverLetter(job, tailoredCV);
+    let coverUrl = null;
+    const coverPath = join(ROOT, `output/${jobId}-cover.txt`);
+    writeFileSync(coverPath, coverText, 'utf-8');
+
+    // 4. Generate Q&A answers for provided questions
+    const qa = questions.length > 0 ? await generateAnswers(questions, job, tailoredCV) : [];
+
+    // 5. Create application record in DB
+    const appRecord = await createApplication({
+      job_id: jobId,
+      cv_url: cvUrl,
+      cover_url: coverUrl,
+      custom_qa: qa,
+      fields_filled: {},
+    });
+
+    await audit('TAILORING_DONE', { jobId, applicationId: appRecord.id, payload: { cvUrl, qaCount: qa.length } });
+
+    // 6. Trigger GitHub Actions filler (dry-run mode)
+    await triggerFillerWorkflow(jobId, appRecord.id, { submit: false, cvUrl, coverText });
+
+    console.log(`[tailor] Done for job ${jobId}. Triggering filler...`);
+  } catch (err) {
+    console.error('[tailor] Error:', err);
+    await updateJobStatus(jobId, 'SCORED').catch(() => {}); // reset for retry
+    await sendAlert(`❌ Tailor failed for job ${jobId}: ${err.message}`);
+  }
+}
+
+async function pumpTailorQueue() {
+  if (tailorBusy) return;
+  tailorBusy = true;
+  while (tailorQueue.length > 0) {
+    const item = tailorQueue.shift();
+    await processTailorJob(item);
+    // Pacing: wait between jobs so Groq TPM resets
+    if (tailorQueue.length > 0) await sleep(8000);
+  }
+  tailorBusy = false;
+}
+
 app.post('/tailor', async (req, res) => {
   const { jobId, questions = [] } = req.body;
   if (!jobId) return res.status(400).json({ error: 'jobId required' });
 
-  res.json({ ok: true, queued: true });
+  tailorQueue.push({ jobId, questions });
+  res.json({ ok: true, queued: true, queueSize: tailorQueue.length });
+  setImmediate(pumpTailorQueue);
+});
 
-  setImmediate(async () => {
-    try {
-      const job = await getJob(jobId);
-      if (!job) throw new Error('Job not found');
-
-      console.log(`[tailor] Starting tailoring for ${job.company} — ${job.title}`);
-      await updateJobStatus(jobId, 'TAILORING');
-
-      // 1. Tailor CV
-      const tailoredCV = await tailorCV(job);
-
-      // 2. Generate PDF
-      let cvUrl = null;
-      try {
-        const pdfPath = await generatePDF(tailoredCV, jobId);
-        cvUrl = await uploadToStorage(pdfPath, `${jobId}/cv.pdf`);
-      } catch (err) {
-        console.error('[tailor] PDF generation failed:', err.message);
-        await sendAlert(`⚠️ PDF generation failed for ${job.company}: ${err.message}. Will use markdown fallback.`);
-      }
-
-      // 3. Generate cover letter (only if job requires it — filler will confirm during dry-run)
-      // Pre-generate it here so it's ready; filler decides whether to attach
-      const coverText = await generateCoverLetter(job, tailoredCV);
-      let coverUrl = null;
-      // Store cover as text for now; PDF generation happens if filler needs it
-      const coverPath = join(ROOT, `output/${jobId}-cover.txt`);
-      writeFileSync(coverPath, coverText, 'utf-8');
-
-      // 4. Generate Q&A answers for provided questions
-      const qa = questions.length > 0 ? await generateAnswers(questions, job, tailoredCV) : [];
-
-      // 5. Create application record in DB
-      const appRecord = await createApplication({
-        job_id: jobId,
-        cv_url: cvUrl,
-        cover_url: coverUrl,
-        custom_qa: qa,
-        fields_filled: {},
-      });
-
-      await audit('TAILORING_DONE', { jobId, applicationId: appRecord.id, payload: { cvUrl, qaCount: qa.length } });
-
-      // 6. Trigger GitHub Actions filler (dry-run mode)
-      await triggerFillerWorkflow(jobId, appRecord.id, { submit: false, cvUrl, coverText });
-
-      console.log(`[tailor] Done for job ${jobId}. Triggering filler...`);
-    } catch (err) {
-      console.error('[tailor] Error:', err);
-      await updateJobStatus(jobId, 'SCORED').catch(() => {}); // reset for retry
-      await sendAlert(`❌ Tailor failed for job ${jobId}: ${err.message}`);
-    }
-  });
+app.get('/queue-status', (_req, res) => {
+  res.json({ queueSize: tailorQueue.length, processing: tailorBusy });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
