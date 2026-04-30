@@ -160,6 +160,50 @@ app.post('/filler/captcha', verifyGHSignature, async (req, res) => {
 // ── User commands from Telegram bot (internal IPC) ────────────────────────────
 
 /**
+ * POST /cmd/scan
+ * Trigger an on-demand scan via scout agent.
+ */
+app.post('/cmd/scan', async (req, res) => {
+  try {
+    const scoutUrl = process.env.SCOUT_URL || 'http://127.0.0.1:9003';
+    const resp = await fetch(`${scoutUrl}/trigger`, { method: 'POST' });
+    const body = await resp.json();
+    res.json(body);
+  } catch (err) {
+    console.error('[orchestrator] /cmd/scan error:', err);
+    res.status(500).json({ ok: false, error: err.message });
+  }
+});
+
+/**
+ * POST /cmd/pause
+ * Pause all scanning and auto-applications.
+ */
+app.post('/cmd/pause', async (req, res) => {
+  try {
+    await updateSystemState({ paused: true });
+    await audit('SYSTEM_PAUSED', { actor: 'user' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
+ * POST /cmd/resume
+ * Resume scanning and auto-applications.
+ */
+app.post('/cmd/resume', async (req, res) => {
+  try {
+    await updateSystemState({ paused: false });
+    await audit('SYSTEM_RESUMED', { actor: 'user' });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+/**
  * POST /cmd/approve  { jobId }
  * Called by telegram-bot when user taps ✅ Prepare
  */

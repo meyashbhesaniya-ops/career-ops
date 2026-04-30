@@ -12,6 +12,7 @@
 
 import 'dotenv/config';
 import cron from 'node-cron';
+import express from 'express';
 import { readFileSync, appendFileSync, existsSync } from 'fs';
 import yaml from 'js-yaml';
 import {
@@ -129,7 +130,7 @@ async function runScan() {
 
   console.log(`[scout] Starting scan at ${new Date().toISOString()}`);
   const config = loadConfig();
-  const companies = config.companies || [];
+  const companies = config.tracked_companies || config.companies || [];
   const filters = config.title_filter;
 
   let discovered = 0;
@@ -252,5 +253,27 @@ async function runLivenessCheck() {
 
 // Run immediately on startup
 runScan().catch(err => console.error('[scout] Initial scan error:', err));
+
+// ── HTTP endpoint for on-demand scan trigger ──────────────────────────────────
+
+const SCOUT_PORT = parseInt(process.env.SCOUT_PORT || '9003', 10);
+const scoutApp = express();
+scoutApp.use(express.json());
+
+scoutApp.get('/healthz', (_req, res) => res.json({ ok: true }));
+
+scoutApp.post('/trigger', async (_req, res) => {
+  try {
+    res.json({ ok: true, message: 'Scan triggered' });
+    // Run scan async after responding
+    runScan().catch(err => console.error('[scout] On-demand scan error:', err));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+scoutApp.listen(SCOUT_PORT, '127.0.0.1', () => {
+  console.log(`[scout] HTTP trigger listening on port ${SCOUT_PORT}`);
+});
 
 console.log('[scout] Worker started. Cron: every 30 min. Digest: 20:00 CET.');
